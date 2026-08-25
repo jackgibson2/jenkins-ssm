@@ -92,9 +92,40 @@ language, to be finalized when that language's benchmark is built):
 
 A separate client harness per protocol drives each benchmark app over a
 persistent connection (connection reuse matters — TLS/QUIC handshake cost
-should not leak into steady-state numbers). Client and server run as
-separate processes/containers so client-side resource usage doesn't
-contaminate server-side measurements.
+should not leak into steady-state numbers). Client and server run in
+separate containers (see Deployment below) so client-side resource usage
+doesn't contaminate server-side measurements.
+
+## Deployment (decided)
+
+Every benchmark deployment — server and client alike, in every language —
+runs in a container. This is not optional per combination; it's the only
+deployment mode for this project. Reasons:
+
+- **Equivalent resource allocation across languages.** A container gives
+  each benchmark app a fixed, declared CPU and memory limit, so "Java vs.
+  Go vs. Rust vs. Python" is a comparison of four processes given the same
+  resource envelope, not four processes competing for whatever the host
+  happens to have free at the time.
+- **Reproducibility.** A pinned base image + declared runtime version
+  (JDK/Go/Rust/Python version) means a result recorded in `results/` can be
+  re-run later against the same environment, not "whatever was installed
+  on the benchmark machine that day."
+- **Isolation from the host and from each other.** No two benchmark
+  combinations should run on the same host at the same time regardless —
+  see Load generation above and the noisy-neighbor note in Build & CI —
+  but containers make that isolation enforceable (cgroup limits) rather
+  than just a run-book convention.
+
+Concretely: each `benchmarks/<lang>/<protocol>-<format>/` combination gets
+its own server Dockerfile, and each protocol gets a shared client
+Dockerfile (the load-generator harness is per-protocol, not per
+combination — see Load generation above). `results/<run>/env.json` records
+the image tag/digest and the container's CPU/memory limits alongside the
+host's specs, so a result is traceable back to exactly what ran.
+
+Still open: which orchestration tool drives "start this one container pair,
+run the load test, tear down, record results" — see Open Questions.
 
 ## Repository layout
 
@@ -118,7 +149,10 @@ jenkins-ssm/
 Each `benchmarks/<lang>/` directory will grow its own subfolders per
 protocol/format combination as those are built, e.g.
 `benchmarks/java/http2-json/`, `benchmarks/java/http3-protobuf/`, sharing
-common Disruptor/event code within the language where sensible.
+common Disruptor/event code within the language where sensible. Every such
+combination directory includes its own server `Dockerfile` (see
+Deployment below); client harnesses live one level per protocol and are
+shared across the formats/languages they drive.
 
 ## Build & CI (future work, stubbed for now)
 
@@ -131,8 +165,9 @@ results committed under `results/` with the run's environment metadata.
 
 ## Open questions / next decisions
 
-- Orchestration: docker-compose per combination vs. a single runner script
-  per language?
+- Container orchestration tool: docker-compose per combination vs. a
+  single runner script (docker CLI) driving each combination in turn vs.
+  something heavier (k8s Job) if this ever needs to run at scale?
 - How is "same logical message" enforced across encodings — generate
   JSON Schema and Protobuf from the XSD, or hand-maintain three schemas
   and cross-validate with a shared sample set? (Current scaffold hand-
@@ -140,5 +175,3 @@ results committed under `results/` with the run's environment metadata.
   `schemas/pacs008/README.md`.)
 - Statistical rigor: number of repetitions per cell, how outliers/GC
   pauses are reported rather than discarded.
-- Containerization/isolation strategy so cross-language comparisons are
-  running on equivalent CPU/memory allocations.

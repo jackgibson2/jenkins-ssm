@@ -19,8 +19,8 @@ Expected layout once implementations land:
 ```
 go/
   disruptor/             <- shared ring buffer, event types, handler chain
-  http2-json/
-  http2-xml/
+  http2-json/             <- includes its own server Dockerfile (all deployments are containerized)
+  http2-xml/              <- includes its own server Dockerfile
   http2-protobuf/
   http3-json/
   http3-xml/
