@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:benchmark:pacs.008.001.08.schema.json",
+  "title": "FIToFICustomerCreditTransferV08 (simplified pacs.008.001.08)",
+  "description": "JSON equivalent of schemas/pacs008/xsd/pacs.008.001.08.xsd. See schemas/pacs008/README.md for scope notes.",
+  "type": "object",
+  "required": ["FIToFICstmrCdtTrf"],
+  "additionalProperties": false,
+  "properties": {
+    "FIToFICstmrCdtTrf": {
+      "type": "object",
+      "required": ["GrpHdr", "CdtTrfTxInf"],
+      "additionalProperties": false,
+      "properties": {
+        "GrpHdr": { "$ref": "#/$defs/GroupHeader" },
+        "CdtTrfTxInf": { "$ref": "#/$defs/CreditTransferTransactionInformation" }
+      }
+    }
+  },
+  "$defs": {
+    "GroupHeader": {
+      "type": "object",
+      "required": ["MsgId", "CreDtTm", "NbOfTxs", "SttlmInf"],
+      "additionalProperties": false,
+      "properties": {
+        "MsgId": { "type": "string" },
+        "CreDtTm": { "type": "string", "format": "date-time" },
+        "NbOfTxs": { "type": "integer", "minimum": 1 },
+        "SttlmInf": {
+          "type": "object",
+          "required": ["SttlmMtd"],
+          "additionalProperties": false,
+          "properties": {
+            "SttlmMtd": { "type": "string", "enum": ["INDA", "INGA", "COVE", "CLRG"] }
+          }
+        }
+      }
+    },
+    "CreditTransferTransactionInformation": {
+      "type": "object",
+      "required": [
+        "PmtId", "IntrBkSttlmAmt", "IntrBkSttlmDt", "ChrgBr",
+        "InstgAgt", "InstdAgt", "DbtrAgt", "Dbtr", "DbtrAcct",
+        "CdtrAgt", "Cdtr", "CdtrAcct"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "PmtId": { "$ref": "#/$defs/PaymentIdentification" },
+        "IntrBkSttlmAmt": { "$ref": "#/$defs/ActiveCurrencyAndAmount" },
+        "IntrBkSttlmDt": { "type": "string", "format": "date" },
+        "ChrgBr": { "type": "string", "enum": ["DEBT", "CRED", "SHAR", "SLEV"] },
+        "InstgAgt": { "$ref": "#/$defs/FinancialInstitutionIdentification" },
+        "InstdAgt": { "$ref": "#/$defs/FinancialInstitutionIdentification" },
+        "DbtrAgt": { "$ref": "#/$defs/FinancialInstitutionIdentification" },
+        "Dbtr": { "$ref": "#/$defs/PartyIdentification" },
+        "DbtrAcct": { "$ref": "#/$defs/CashAccount" },
+        "CdtrAgt": { "$ref": "#/$defs/FinancialInstitutionIdentification" },
+        "Cdtr": { "$ref": "#/$defs/PartyIdentification" },
+        "CdtrAcct": { "$ref": "#/$defs/CashAccount" },
+        "RmtInf": { "$ref": "#/$defs/RemittanceInformation" }
+      }
+    },
+    "PaymentIdentification": {
+      "type": "object",
+      "required": ["InstrId", "EndToEndId", "TxId", "UETR"],
+      "additionalProperties": false,
+      "properties": {
+        "InstrId": { "type": "string" },
+        "EndToEndId": { "type": "string" },
+        "TxId": { "type": "string" },
+        "UETR": { "type": "string" }
+      }
+    },
+    "ActiveCurrencyAndAmount": {
+      "type": "object",
+      "required": ["Ccy", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "Ccy": { "type": "string", "minLength": 3, "maxLength": 3 },
+        "value": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$" }
+      }
+    },
+    "FinancialInstitutionIdentification": {
+      "type": "object",
+      "required": ["BICFI"],
+      "additionalProperties": false,
+      "properties": {
+        "BICFI": { "type": "string" }
+      }
+    },
+    "PartyIdentification": {
+      "type": "object",
+      "required": ["Nm"],
+      "additionalProperties": false,
+      "properties": {
+        "Nm": { "type": "string" }
+      }
+    },
+    "CashAccount": {
+      "type": "object",
+      "required": ["IBAN"],
+      "additionalProperties": false,
+      "properties": {
+        "IBAN": { "type": "string" }
+      }
+    },
+    "RemittanceInformation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Ustrd": { "type": "string" }
+      }
+    }
+  }
+}

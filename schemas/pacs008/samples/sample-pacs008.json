@@ -1,0 +1,35 @@
+{
+  "FIToFICstmrCdtTrf": {
+    "GrpHdr": {
+      "MsgId": "MSG-0001",
+      "CreDtTm": "2026-08-25T10:15:30Z",
+      "NbOfTxs": 1,
+      "SttlmInf": {
+        "SttlmMtd": "CLRG"
+      }
+    },
+    "CdtTrfTxInf": {
+      "PmtId": {
+        "InstrId": "INSTR-0001",
+        "EndToEndId": "E2E-0001",
+        "TxId": "TX-0001",
+        "UETR": "3f9c1b2a-6d4e-4a1a-9c2e-7a2f9d0c1e11"
+      },
+      "IntrBkSttlmAmt": {
+        "Ccy": "EUR",
+        "value": "1250.75"
+      },
+      "IntrBkSttlmDt": "2026-08-25",
+      "ChrgBr": "SLEV",
+      "InstgAgt": { "BICFI": "BANKGB2LXXX" },
+      "InstdAgt": { "BICFI": "BANKDEFFXXX" },
+      "DbtrAgt": { "BICFI": "BANKGB2LXXX" },
+      "Dbtr": { "Nm": "Acme Trading Ltd" },
+      "DbtrAcct": { "IBAN": "GB29NWBK60161331926819" },
+      "CdtrAgt": { "BICFI": "BANKDEFFXXX" },
+      "Cdtr": { "Nm": "Musterfirma GmbH" },
+      "CdtrAcct": { "IBAN": "DE89370400440532013000" },
+      "RmtInf": { "Ustrd": "Invoice 2026-0842" }
+    }
+  }
+}

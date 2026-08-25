@@ -1,0 +1,90 @@
+// Simplified subset of ISO 20022 pacs.008.001.08 (FIToFICustomerCreditTransferV08)
+// for the LMAX-disruptor cross-language benchmark suite.
+// See schemas/pacs008/README.md for scope notes.
+syntax = "proto3";
+
+package benchmark.pacs008.v1;
+
+option java_package = "com.benchmark.pacs008.v1";
+option java_multiple_files = true;
+option go_package = "github.com/jackgibson2/jenkins-ssm/schemas/pacs008/gen/pacs008v1";
+
+message Document {
+  FIToFICustomerCreditTransferV08 fi_to_fi_cstmr_cdt_trf = 1;
+}
+
+message FIToFICustomerCreditTransferV08 {
+  GroupHeader grp_hdr = 1;
+  CreditTransferTransactionInformation cdt_trf_tx_inf = 2;
+}
+
+message GroupHeader {
+  string msg_id = 1;
+  string cre_dt_tm = 2;   // RFC 3339 timestamp
+  uint32 nb_of_txs = 3;
+  SettlementInstruction sttlm_inf = 4;
+}
+
+message SettlementInstruction {
+  SettlementMethod sttlm_mtd = 1;
+}
+
+enum SettlementMethod {
+  SETTLEMENT_METHOD_UNSPECIFIED = 0;
+  INDA = 1;
+  INGA = 2;
+  COVE = 3;
+  CLRG = 4;
+}
+
+message CreditTransferTransactionInformation {
+  PaymentIdentification pmt_id = 1;
+  ActiveCurrencyAndAmount intr_bk_sttlm_amt = 2;
+  string intr_bk_sttlm_dt = 3; // ISO 8601 date (YYYY-MM-DD)
+  ChargeBearerType chrg_br = 4;
+  FinancialInstitutionIdentification instg_agt = 5;
+  FinancialInstitutionIdentification instd_agt = 6;
+  FinancialInstitutionIdentification dbtr_agt = 7;
+  PartyIdentification dbtr = 8;
+  CashAccount dbtr_acct = 9;
+  FinancialInstitutionIdentification cdtr_agt = 10;
+  PartyIdentification cdtr = 11;
+  CashAccount cdtr_acct = 12;
+  RemittanceInformation rmt_inf = 13;
+}
+
+message PaymentIdentification {
+  string instr_id = 1;
+  string end_to_end_id = 2;
+  string tx_id = 3;
+  string uetr = 4;
+}
+
+message ActiveCurrencyAndAmount {
+  string ccy = 1;
+  string value = 2; // decimal encoded as string to avoid float precision loss
+}
+
+enum ChargeBearerType {
+  CHARGE_BEARER_TYPE_UNSPECIFIED = 0;
+  DEBT = 1;
+  CRED = 2;
+  SHAR = 3;
+  SLEV = 4;
+}
+
+message FinancialInstitutionIdentification {
+  string bicfi = 1;
+}
+
+message PartyIdentification {
+  string nm = 1;
+}
+
+message CashAccount {
+  string iban = 1;
+}
+
+message RemittanceInformation {
+  string ustrd = 1;
+}

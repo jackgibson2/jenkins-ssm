@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:benchmark:pacs.008.001.08">
+  <FIToFICstmrCdtTrf>
+    <GrpHdr>
+      <MsgId>MSG-0001</MsgId>
+      <CreDtTm>2026-08-25T10:15:30Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <SttlmInf>
+        <SttlmMtd>CLRG</SttlmMtd>
+      </SttlmInf>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>INSTR-0001</InstrId>
+        <EndToEndId>E2E-0001</EndToEndId>
+        <TxId>TX-0001</TxId>
+        <UETR>3f9c1b2a-6d4e-4a1a-9c2e-7a2f9d0c1e11</UETR>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="EUR">1250.75</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2026-08-25</IntrBkSttlmDt>
+      <ChrgBr>SLEV</ChrgBr>
+      <InstgAgt>
+        <BICFI>BANKGB2LXXX</BICFI>
+      </InstgAgt>
+      <InstdAgt>
+        <BICFI>BANKDEFFXXX</BICFI>
+      </InstdAgt>
+      <DbtrAgt>
+        <BICFI>BANKGB2LXXX</BICFI>
+      </DbtrAgt>
+      <Dbtr>
+        <Nm>Acme Trading Ltd</Nm>
+      </Dbtr>
+      <DbtrAcct>
+        <IBAN>GB29NWBK60161331926819</IBAN>
+      </DbtrAcct>
+      <CdtrAgt>
+        <BICFI>BANKDEFFXXX</BICFI>
+      </CdtrAgt>
+      <Cdtr>
+        <Nm>Musterfirma GmbH</Nm>
+      </Cdtr>
+      <CdtrAcct>
+        <IBAN>DE89370400440532013000</IBAN>
+      </CdtrAcct>
+      <RmtInf>
+        <Ustrd>Invoice 2026-0842</Ustrd>
+      </RmtInf>
+    </CdtTrfTxInf>
+  </FIToFICstmrCdtTrf>
+</Document>

@@ -1,0 +1,39 @@
+# Text-format representation of schemas/pacs008/proto/pacs008.proto's Document message.
+# Same logical transfer as sample-pacs008.xml / sample-pacs008.json.
+# Generate the binary form with, e.g.:
+#   protoc --encode=benchmark.pacs008.v1.Document schemas/pacs008/proto/pacs008.proto \
+#     < schemas/pacs008/samples/sample-pacs008.textproto > sample-pacs008.pb
+
+fi_to_fi_cstmr_cdt_trf {
+  grp_hdr {
+    msg_id: "MSG-0001"
+    cre_dt_tm: "2026-08-25T10:15:30Z"
+    nb_of_txs: 1
+    sttlm_inf {
+      sttlm_mtd: CLRG
+    }
+  }
+  cdt_trf_tx_inf {
+    pmt_id {
+      instr_id: "INSTR-0001"
+      end_to_end_id: "E2E-0001"
+      tx_id: "TX-0001"
+      uetr: "3f9c1b2a-6d4e-4a1a-9c2e-7a2f9d0c1e11"
+    }
+    intr_bk_sttlm_amt {
+      ccy: "EUR"
+      value: "1250.75"
+    }
+    intr_bk_sttlm_dt: "2026-08-25"
+    chrg_br: SLEV
+    instg_agt { bicfi: "BANKGB2LXXX" }
+    instd_agt { bicfi: "BANKDEFFXXX" }
+    dbtr_agt { bicfi: "BANKGB2LXXX" }
+    dbtr { nm: "Acme Trading Ltd" }
+    dbtr_acct { iban: "GB29NWBK60161331926819" }
+    cdtr_agt { bicfi: "BANKDEFFXXX" }
+    cdtr { nm: "Musterfirma GmbH" }
+    cdtr_acct { iban: "DE89370400440532013000" }
+    rmt_inf { ustrd: "Invoice 2026-0842" }
+  }
+}
