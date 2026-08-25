@@ -24,8 +24,38 @@ The variables under test are:
 That's a 4 × 3 × 3 = 36-cell matrix. Not every cell is equally idiomatic
 (e.g. Protobuf pairs naturally with gRPC-over-HTTP/2; plain REST XML is more
 natural over HTTP/2 than HTTP/3), so the matrix is a superset to prioritize
-from, not a mandate that every cell gets a bespoke implementation — see
-Open Questions.
+from, not a mandate that every cell gets a bespoke implementation.
+
+## MVP scope (decided)
+
+First four cells to implement, before expanding further:
+
+| | HTTP/2 + JSON | HTTP/2 + XML |
+|---|---|---|
+| **Java** | ✅ MVP | ✅ MVP |
+| **Go** | ✅ MVP | ✅ MVP |
+
+Rationale:
+- **Java, Go first** — Java has the reference LMAX Disruptor implementation;
+  Go is the second language to validate the pattern translates to a
+  GC'd-but-non-JVM runtime with a different concurrency model (goroutines
+  vs. threads) before tackling Rust (no GC) or Python (GIL, the hardest
+  case). Rust and Python are deferred, not dropped.
+- **JSON and XML first, Protobuf deferred** — both are text-based and
+  human-diffable, which matters while the shared schemas and handler
+  pipeline are still being shaken out. Protobuf adds a code-generation step
+  per language that's easier to bolt on once the pipeline shape is proven.
+- **HTTP/2 first, not HTTP/3 or WebSockets** — HTTP/2 has the most mature
+  client/server support in both ecosystems (Go's `net/http` has native h2
+  support; Java has `HttpClient`/Netty), so it isolates the
+  disruptor-and-serialization comparison from transport-stack immaturity.
+  HTTP/3 (QUIC library maturity varies a lot per language) and WebSockets
+  (different request/reply framing, no built-in HTTP semantics) come next,
+  once HTTP/2 numbers exist as a baseline to compare against.
+
+Next tranches, in order: add HTTP/3 and WebSockets to Java+Go (still
+JSON/XML) → add Protobuf to all combinations built so far → bring in Rust →
+bring in Python last (GIL caveat documented above).
 
 ## Why LMAX Disruptor as the pattern under test
 
@@ -101,8 +131,6 @@ results committed under `results/` with the run's environment metadata.
 
 ## Open questions / next decisions
 
-- Which of the 36 matrix cells are must-have for the first comparable
-  results, versus stretch goals?
 - Orchestration: docker-compose per combination vs. a single runner script
   per language?
 - How is "same logical message" enforced across encodings — generate

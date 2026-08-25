@@ -1,6 +1,8 @@
 # Python benchmarks
 
-Not yet implemented — scaffold placeholder.
+Not yet implemented — scaffold placeholder. **Deferred**: per the MVP scope
+in `../../docs/design.md`, Python is built last, after Java, Go, and Rust,
+since the GIL makes it the hardest case for the parallel-handler model.
 
 Planned: one implementation per protocol/format combination under test.
 Python has no true Disruptor-pattern equivalent under the GIL; the plan is

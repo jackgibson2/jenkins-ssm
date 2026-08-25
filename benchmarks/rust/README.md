@@ -1,6 +1,8 @@
 # Rust benchmarks
 
-Not yet implemented — scaffold placeholder.
+Not yet implemented — scaffold placeholder. **Deferred**: per the MVP scope
+in `../../docs/design.md`, Java and Go are built first; Rust comes after
+HTTP/3, WebSockets, and Protobuf have been added to those two.
 
 Planned: one implementation per protocol/format combination under test,
 using a ring-buffer/Disruptor-pattern equivalent (candidates: `disruptor-rs`,
