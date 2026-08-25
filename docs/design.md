@@ -90,6 +90,20 @@ language, to be finalized when that language's benchmark is built):
 
 ## Load generation
 
+**Tool (decided): [k6](https://github.com/grafana/k6)** (Grafana Labs,
+AGPL-3.0, widely adopted). Chosen because one tool/one scripting language
+(JS) covers HTTP/1.1, HTTP/2 (auto-negotiated via ALPN), and WebSockets
+(`k6/ws`) — the three MVP-and-next-tranche protocols — plus gRPC
+(`k6/net/grpc`) if a Protobuf/gRPC combination is added later. k6's built-in
+latency percentiles, throughput, thresholds, and JSON summary output map
+directly onto the `results/summary.json` fields defined above.
+
+Known gap: k6 has no official HTTP/3 support yet. That's not a blocker for
+the MVP (HTTP/3 is a later tranche, not one of the four MVP cells — see MVP
+scope), but it needs revisiting before that tranche starts — candidates are
+`h2load` built against `ngtcp2`/`nghttp3`, or a small custom client using
+each language's native HTTP/3 stack.
+
 A separate client harness per protocol drives each benchmark app over a
 persistent connection (connection reuse matters — TLS/QUIC handshake cost
 should not leak into steady-state numbers). Client and server run in
@@ -124,8 +138,27 @@ combination — see Load generation above). `results/<run>/env.json` records
 the image tag/digest and the container's CPU/memory limits alongside the
 host's specs, so a result is traceable back to exactly what ran.
 
-Still open: which orchestration tool drives "start this one container pair,
-run the load test, tear down, record results" — see Open Questions.
+### Orchestration (decided)
+
+A **plain CLI runner script** (`scripts/run-benchmark.sh`, see stub) drives
+each run for now: build/pull the server image, start it, start the k6
+client container against it, wait for completion, collect the summary into
+`results/`, tear both containers down. No docker-compose, no scheduler.
+
+This is a deliberate stepping stone, not the end state: the target
+deployment for this suite is Kubernetes or AWS ECS, once there's enough
+built to make running at scale worthwhile. The runner script's job is to
+pin down *what a run consists of* (start server → start client → collect →
+tear down, one container pair at a time, on isolated hardware) while that
+contract is still cheap to change. Keeping it a plain script now — rather
+than committing early to docker-compose or a k8s manifest — means:
+
+- the "one run = one container pair + one result" contract gets exercised
+  and corrected while there's still only 4 MVP cells, not 36;
+- porting later is a re-implementation of the same steps as a k8s `Job`
+  (or an ECS `RunTask`) rather than a redesign, since the steps themselves
+  (image, resource limits, start, collect, teardown) don't change — only
+  who schedules them does.
 
 ## Repository layout
 
@@ -133,6 +166,8 @@ run the load test, tear down, record results" — see Open Questions.
 jenkins-ssm/
   docs/
     design.md              <- this file
+  scripts/
+    run-benchmark.sh        <- CLI runner: build/start server + k6 client containers, collect results, tear down
   schemas/pacs008/          <- shared wire-format contracts, one message, three encodings
     xsd/                    <- ISO 20022 XML Schema (simplified subset, see schemas/pacs008/README.md)
     json/                   <- JSON Schema equivalent
@@ -143,6 +178,9 @@ jenkins-ssm/
     go/                     <- Go implementations
     rust/                   <- Rust implementations
     python/                 <- Python implementations
+    http2/client.js          <- shared k6 client script for HTTP/2 (drives every language's http2-* server)
+    ws/client.js             <- shared k6 client script for WebSockets
+    http3/client.js          <- shared k6-or-equivalent client script for HTTP/3 (see Load generation gap)
   results/                  <- benchmark run outputs (raw + summarized), gitignored data with committed format docs
 ```
 
@@ -151,8 +189,10 @@ protocol/format combination as those are built, e.g.
 `benchmarks/java/http2-json/`, `benchmarks/java/http3-protobuf/`, sharing
 common Disruptor/event code within the language where sensible. Every such
 combination directory includes its own server `Dockerfile` (see
-Deployment below); client harnesses live one level per protocol and are
-shared across the formats/languages they drive.
+Deployment below). Client harnesses live one level up, per protocol
+(`benchmarks/<protocol>/client.js`), since the same k6 script drives every
+language/format server for that protocol — `scripts/run-benchmark.sh`
+wires the two together.
 
 ## Build & CI (future work, stubbed for now)
 
@@ -165,9 +205,6 @@ results committed under `results/` with the run's environment metadata.
 
 ## Open questions / next decisions
 
-- Container orchestration tool: docker-compose per combination vs. a
-  single runner script (docker CLI) driving each combination in turn vs.
-  something heavier (k8s Job) if this ever needs to run at scale?
 - How is "same logical message" enforced across encodings — generate
   JSON Schema and Protobuf from the XSD, or hand-maintain three schemas
   and cross-validate with a shared sample set? (Current scaffold hand-
